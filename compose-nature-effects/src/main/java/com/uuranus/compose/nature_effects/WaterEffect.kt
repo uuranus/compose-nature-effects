@@ -1,38 +1,53 @@
 package com.uuranus.compose.nature_effects
 
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.sin
+import kotlin.random.Random
 
+val purple = Color(0xff4b2cef)
+val blue = Color(0xFF4478e3)
+val mint = Color(0xFF1EB3B8)
 val image1Colors = listOf(
-    Color(0xFF98D6E8), // Light Blue
-    Color(0xFFE28A98), // Light Pink
-    Color(0xFFB190E3), // Light Purple
-    Color(0xFFA3E7B6), // Light Green
-    Color(0xFFCACBFD), // Light Purple
-    Color(0xFF8BC8F9), // Light Blue
-    Color(0xFFDBA4F5), // Light Purple
+    mint,
+    mint.copy(alpha = 0.6f),
+    mint.copy(alpha = 0.3f),
+    Color.White.copy(alpha = 0.4f),
+    Color.White.copy(alpha = 0.2f)
 )
 
 @Composable
 fun WaveEffect(
-    numberOfWaves: Int = 1, // Number of simultaneous waves
-) = BoxWithConstraints {
+    modifier: Modifier = Modifier,
+    waterHeight: Dp,
+    numberOfWaves: Int = 3,
+) = BoxWithConstraints(modifier = modifier) {
 
     val density = LocalDensity.current
 
@@ -43,25 +58,32 @@ fun WaveEffect(
         maxWidth.toPx()
     }
 
-    val interval = (width / 4).toInt()
+    val animatedWaterHeight by animateDpAsState(
+        targetValue = waterHeight,
+        animationSpec = tween(
+            durationMillis = 750,
+            easing = LinearEasing
+        ), label = ""
+    )
 
-    val waterHeight = height / 2
+    val waterHeightPx = with(density) {
+        animatedWaterHeight.toPx()
+    }
+    val interval = (width / 3).toInt()
 
     val waterLevel = with(density) {
         20.dp.toPx()
     }
 
-    val duration = 3000
-
     val progressAnimate = rememberInfiniteTransition(label = "")
 
     val progresses = List(numberOfWaves) { waveIndex ->
         progressAnimate.animateFloat(
-            initialValue = 0f,
-            targetValue = width,
+            initialValue = -waveIndex.toFloat(),
+            targetValue = width - waveIndex.toFloat(),
             animationSpec = infiniteRepeatable(
                 animation = tween(
-                    durationMillis = duration,
+                    durationMillis = 3000,
                     easing = LinearEasing
                 ),
                 repeatMode = RepeatMode.Restart
@@ -82,21 +104,18 @@ fun WaveEffect(
                 mutableStateOf(
                     Offset(
                         interval * index.toFloat(),
-
-                        waterHeight + yValue.toFloat()
-
+                        height - waterHeightPx + yValue.toFloat()
                     )
                 )
             }
-
         }
 
     Canvas(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
+            .background(Color.White)
     ) {
 
-        val arcSize = 20f
         val paths = List(numberOfWaves) { wave ->
             Path().apply {
 
@@ -131,7 +150,6 @@ fun WaveEffect(
 
         for ((index, path) in paths.withIndex()) {
             drawPath(path = path, color = image1Colors[index])
-
         }
 
     }
