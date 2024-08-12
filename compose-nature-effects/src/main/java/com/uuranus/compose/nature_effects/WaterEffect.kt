@@ -1,26 +1,23 @@
 package com.uuranus.compose.nature_effects
 
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -28,8 +25,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import kotlin.math.sin
-import kotlin.random.Random
 
 val purple = Color(0xff4b2cef)
 val blue = Color(0xFF4478e3)
@@ -58,10 +55,22 @@ fun WaveEffect(
         maxWidth.toPx()
     }
 
+    var previousWaterHeight by remember { mutableStateOf(waterHeight) }
+
+    val durationMillis = height / 100
+
+    val heightDifference by remember {
+        derivedStateOf {
+            with(density) {
+                abs(previousWaterHeight.toPx() - waterHeight.toPx())
+            }
+        }
+    }
+
     val animatedWaterHeight by animateDpAsState(
         targetValue = waterHeight,
         animationSpec = tween(
-            durationMillis = 750,
+            durationMillis = (durationMillis * heightDifference).toInt(),
             easing = LinearEasing
         ), label = ""
     )
@@ -110,6 +119,10 @@ fun WaveEffect(
             }
         }
 
+    LaunchedEffect(animatedWaterHeight) {
+        previousWaterHeight = waterHeight
+    }
+
     Canvas(
         modifier = modifier
             .fillMaxSize()
@@ -154,3 +167,4 @@ fun WaveEffect(
 
     }
 }
+
