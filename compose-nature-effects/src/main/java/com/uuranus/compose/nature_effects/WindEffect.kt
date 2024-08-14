@@ -1,10 +1,5 @@
 package com.uuranus.compose.nature_effects
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,41 +7,35 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -54,7 +43,10 @@ val yellowBackground = Color(0xFF8C8373)
 val blueBackground = Color(0xfF0D1B2A)
 
 @Composable
-fun WindBlownEffect() {
+fun WindBlownEffect(
+    backgroundColor: Color,
+    lightColor: Color,
+) {
 
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -71,10 +63,10 @@ fun WindBlownEffect() {
         mutableStateOf(
             List(20) {
                 val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
-                val y = Random.nextInt(screenHeightPx.toInt() / 2).toFloat()
+                val y = Random.nextInt(screenHeightPx.toInt()).toFloat()
                 Light(
-                    Offset(x, -y),
-                    Random.nextFloat() * (PI / 2).toFloat() + (PI / 4).toFloat() // Random angle for horizontal movement
+                    Offset(x, y),
+                    Random.nextFloat() * (PI / 2).toFloat() + (PI / 4).toFloat()
                 )
             }
         )
@@ -103,7 +95,8 @@ fun WindBlownEffect() {
                     light.copy(offset = Offset(newX, newY))
                 }
             }
-            kotlinx.coroutines.delay(100L)
+
+            delay(100L)
         }
     }
 
@@ -112,20 +105,20 @@ fun WindBlownEffect() {
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .background(blueBackground)
+            .background(backgroundColor)
     ) {
 
         lights.forEach { light ->
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(yellow, Color.Transparent),
+                    colors = listOf(lightColor, Color.Transparent),
                     center = light.offset,
                     radius = 8.dp.toPx()
                 ),
                 center = light.offset,
             )
             drawCircle(
-                color = yellow,
+                color = lightColor,
                 center = light.offset,
                 radius = 5.dp.toPx()
             )
@@ -197,7 +190,7 @@ fun WindBlownDiagonalEffect(
                 thing.copy(offset = offset, rotate = rotate)
             }
 
-            kotlinx.coroutines.delay(100L)
+            delay(100L)
         }
     }
 
@@ -239,3 +232,182 @@ data class Leaf(
     val size: Dp,
     val rotate: Float,
 )
+
+
+@Composable
+fun FloatingUpEffect(
+
+) {
+
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+
+    val screenWidthPx = with(density) {
+        configuration.screenWidthDp * this.density
+    }
+
+    val screenHeightPx = with(density) {
+        configuration.screenHeightDp * this.density
+    }
+
+    val shapeCriteria = with(density) {
+        25.dp.toPx()
+    }
+
+    var bubbleState by remember {
+        mutableStateOf(
+            BubbleState(
+                List(15) { index ->
+
+                    val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
+                    val y = Random.nextInt(screenHeightPx.toInt()).toFloat()
+
+                    val radius = with(density) {
+                        if (index < 5) {
+                            Random.nextInt(25, 30).dp.toPx()
+                        } else {
+                            Random.nextInt(10, 25).dp.toPx()
+                        }
+                    }
+
+                    val shape: Shape = if (radius < shapeCriteria || Random.nextInt(2) == 0) {
+                        CircleShape
+                    } else {
+                        RingShape(6.dp)
+                    }
+
+                    Bubble(
+                        shape = shape,
+                        offset = Offset(x, y),
+                        radius = radius,
+                        width = radius * 3,
+                        angle = Random.nextFloat() * (PI / 2) + PI + (PI * 1 / 4)
+                    )
+                }
+            )
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            awaitFrame()
+            bubbleState = bubbleState.copy(
+                bubbles = bubbleState.bubbles.map { bubble ->
+                    bubble.update(
+                        Size(
+                            screenWidthPx,
+                            screenHeightPx
+                        )
+                    )
+                    bubble
+                }
+            )
+
+            delay(100L)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF007FDE),
+                        Color(0xFF004CC8)
+                    )
+                )
+            )
+    ) {
+
+        for (bubble in bubbleState.bubbles) {
+            val offsetX = with(density) {
+                bubble.offset.x.toDp()
+            }
+
+            val offsetY = with(density) {
+                bubble.offset.y.toDp()
+            }
+
+            val radiusDp = with(density) {
+                bubble.radius.toDp()
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(radiusDp * 2)
+                    .offset(
+                        x = offsetX,
+                        y = offsetY
+                    )
+                    .scale(
+                        if (bubble.shape == CircleShape) {
+                            bubble.scale
+                        } else {
+                            1f
+                        }
+                    )
+                    .background(
+                        color = Color.White.copy(alpha = 0.15f),
+                        shape = bubble.shape
+                    )
+            )
+
+        }
+    }
+
+}
+
+
+data class BubbleState(
+    val bubbles: List<Bubble>,
+)
+
+class Bubble(
+    val shape: Shape,
+    offset: Offset,
+    val radius: Float,
+    val width: Float,
+    angle: Double,
+) {
+
+    var offset by mutableStateOf(offset)
+    private var angle by mutableDoubleStateOf(angle)
+    var scale by mutableFloatStateOf(Random.nextFloat() * 0.4f + 0.6f)
+
+    private var range = (offset.x - width / 2)..(offset.x + width / 2)
+
+    private val increment = radius / 10f
+    private var scaleIncrement = -0.01f
+
+    fun update(
+        screenSize: Size,
+    ) {
+        val newX = offset.x + increment * cos(angle).toFloat()
+        val newY = offset.y + increment * sin(angle).toFloat()
+
+        offset = if (newX < 0 || newX > screenSize.width || newY < 0) {
+            val x = Random.nextFloat() * screenSize.width
+            val y = screenSize.height + radius
+            range = (x - width / 2)..(x + width / 2)
+            Offset(x, y)
+        } else if (newX !in range) {
+            angle = (3 * PI / 2 - angle) + (3 * PI / 2)
+            Offset(
+                x = newX + cos(angle).toFloat(),
+                y = newY
+            )
+        } else {
+            Offset(newX, newY)
+        }
+
+        scale += scaleIncrement
+
+        if (scale <= 0.6f || scale >= 1f) {
+            scaleIncrement = -scaleIncrement
+        }
+
+    }
+
+}
+
