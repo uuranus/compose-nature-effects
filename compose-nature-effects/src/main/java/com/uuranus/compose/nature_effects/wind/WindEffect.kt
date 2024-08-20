@@ -1,4 +1,4 @@
-package com.uuranus.compose.nature_effects
+package com.uuranus.compose.nature_effects.wind
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.uuranus.compose.nature_effects.RingShape
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -100,32 +101,28 @@ fun WindBlownEffect(
         }
     }
 
-    val yellow = Color(0xFFFdFF99)
-
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-
         lights.forEach { light ->
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(lightColor, Color.Transparent),
                     center = light.offset,
-                    radius = 8.dp.toPx()
+                    radius = 3.dp.toPx()
                 ),
                 center = light.offset,
             )
             drawCircle(
                 color = lightColor,
                 center = light.offset,
-                radius = 5.dp.toPx()
+                radius = 2.dp.toPx()
             )
         }
-
-
     }
+
 }
 
 data class Light(
@@ -162,15 +159,15 @@ fun WindBlownDiagonalEffect(
                 }
 
                 val imageSize = Random.nextInt(10, 40).dp
-                Leaf(offset, imageSize, 0f)
+                Leaf(offset, imageSize, Random.nextFloat() * 360)
             })
     }
 
     LaunchedEffect(Unit) {
         while (true) {
             things = things.map { thing ->
-                val newX = thing.offset.x - 10f
-                val newY = thing.offset.y + 10f
+                val newX = thing.offset.x - 5f
+                val newY = thing.offset.y + 5f
 
                 val offset = if (newX <= 0 || newY >= screenHeightPx) {
 
@@ -190,7 +187,7 @@ fun WindBlownDiagonalEffect(
                 thing.copy(offset = offset, rotate = rotate)
             }
 
-            delay(100L)
+            delay(16L)
         }
     }
 
@@ -224,6 +221,7 @@ fun WindBlownDiagonalEffect(
                 colorFilter = ColorFilter.tint(color = Color(0xFFAE8B4E))
             )
         }
+
     }
 }
 
@@ -256,54 +254,50 @@ fun FloatingUpEffect(
 
     var bubbleState by remember {
         mutableStateOf(
-            BubbleState(
-                List(15) { index ->
+            List(15) { index ->
 
-                    val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
-                    val y = Random.nextInt(screenHeightPx.toInt()).toFloat()
+                val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
+                val y = Random.nextInt(screenHeightPx.toInt()).toFloat()
 
-                    val radius = with(density) {
-                        if (index < 5) {
-                            Random.nextInt(25, 30).dp.toPx()
-                        } else {
-                            Random.nextInt(10, 25).dp.toPx()
-                        }
-                    }
-
-                    val shape: Shape = if (radius < shapeCriteria || Random.nextInt(2) == 0) {
-                        CircleShape
+                val radius = with(density) {
+                    if (index < 5) {
+                        Random.nextInt(25, 30).dp.toPx()
                     } else {
-                        RingShape(6.dp)
+                        Random.nextInt(10, 25).dp.toPx()
                     }
-
-                    Bubble(
-                        shape = shape,
-                        offset = Offset(x, y),
-                        radius = radius,
-                        width = radius * 3,
-                        angle = Random.nextFloat() * (PI / 2) + PI + (PI * 1 / 4)
-                    )
                 }
-            )
+
+                val shape: Shape = if (radius < shapeCriteria || Random.nextInt(2) == 0) {
+                    CircleShape
+                } else {
+                    RingShape(6.dp)
+                }
+
+                Bubble(
+                    shape = shape,
+                    offset = Offset(x, y),
+                    radius = radius,
+                    width = radius * 3,
+                    angle = Random.nextFloat() * (PI / 2) + PI + (PI * 1 / 4)
+                )
+            }
         )
     }
 
     LaunchedEffect(Unit) {
         while (isActive) {
             awaitFrame()
-            bubbleState = bubbleState.copy(
-                bubbles = bubbleState.bubbles.map { bubble ->
-                    bubble.update(
-                        Size(
-                            screenWidthPx,
-                            screenHeightPx
-                        )
+            bubbleState = bubbleState.map { bubble ->
+                bubble.update(
+                    Size(
+                        screenWidthPx,
+                        screenHeightPx
                     )
-                    bubble
-                }
-            )
+                )
+                bubble
+            }
 
-            delay(100L)
+            delay(16L)
         }
     }
 
@@ -320,7 +314,7 @@ fun FloatingUpEffect(
             )
     ) {
 
-        for (bubble in bubbleState.bubbles) {
+        for (bubble in bubbleState) {
             val offsetX = with(density) {
                 bubble.offset.x.toDp()
             }
@@ -352,24 +346,21 @@ fun FloatingUpEffect(
                         shape = bubble.shape
                     )
             )
-
         }
+
+
     }
 
 }
 
+    class Bubble(
+        val shape: Shape,
+        offset: Offset,
+        val radius: Float,
+        val width: Float,
+        angle: Double,
+    ) {
 
-data class BubbleState(
-    val bubbles: List<Bubble>,
-)
-
-class Bubble(
-    val shape: Shape,
-    offset: Offset,
-    val radius: Float,
-    val width: Float,
-    angle: Double,
-) {
 
     var offset by mutableStateOf(offset)
     private var angle by mutableDoubleStateOf(angle)
@@ -377,8 +368,8 @@ class Bubble(
 
     private var range = (offset.x - width / 2)..(offset.x + width / 2)
 
-    private val increment = radius / 10f
-    private var scaleIncrement = -0.01f
+    private val increment = radius / 25f
+    private var scaleIncrement = -0.001f
 
     fun update(
         screenSize: Size,
