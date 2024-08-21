@@ -1,56 +1,66 @@
 package com.uuranus.compose.nature_effects.water
 
-import androidx.compose.animation.core.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.Density
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
-import com.uuranus.compose.nature_effects.Animation
-import kotlinx.coroutines.CoroutineScope
-import kotlin.math.abs
+import androidx.compose.ui.unit.dp
 
 class WaveAnimation(
-    private val scope: CoroutineScope,
-    private val density: Density,
-    private val waveLevel: Float,
-    private var waterHeight: Dp,
-    private val waterHeightDuration: Int,
     private val waveProgressDuration: Int,
-) : Animation() {
+) {
 
-    private var previousWaterHeight by mutableStateOf(waterHeight)
+    private var previousWaterHeight by mutableStateOf(0.dp)
 
-    private val heightDifference: Float
-        get() = with(density) {
-            abs(previousWaterHeight.toPx() - waterHeight.toPx())
-        }
+    private var currentWaterHeight by mutableStateOf(previousWaterHeight)
+    private var currentWaveProgresses by mutableStateOf(listOf<Float>())
 
     @Composable
-    fun updateWaterHeight(waterHeight: Dp): Dp {
-        this.waterHeight = waterHeight
+    fun Start(
+        waterHeight: Dp,
+        width: Float,
+        numOfWaves: Int,
+    ) {
+        UpdateWaterHeight(waterHeight)
+        UpdateWaveProgress(width, numOfWaves)
+    }
+
+    @Composable
+    fun UpdateWaterHeight(waterHeight: Dp) {
 
         val animatedHeight by animateDpAsState(
             targetValue = waterHeight,
             animationSpec = tween(
-                durationMillis = (waterHeightDuration * heightDifference).toInt(),
+                durationMillis = waveProgressDuration,
                 easing = LinearEasing
             ),
-            label = ""
+            label = "waterHeight"
         )
 
-        previousWaterHeight = waterHeight
+        LaunchedEffect(animatedHeight) {
+            previousWaterHeight = waterHeight
+        }
 
-        return animatedHeight
+        currentWaterHeight = animatedHeight
     }
 
     @Composable
-    fun updateWaveProgress(
+    fun UpdateWaveProgress(
         width: Float,
         numOfWaves: Int,
-    ): List<Float> {
+    ) {
+        val progressAnimate = rememberInfiniteTransition(label = "waveProgress")
 
-        val progressAnimate = rememberInfiniteTransition(label = "")
-
-        return List(numOfWaves) { waveIndex ->
+        currentWaveProgresses = List(numOfWaves) { waveIndex ->
             progressAnimate.animateFloat(
                 initialValue = -waveIndex.toFloat(),
                 targetValue = width - waveIndex.toFloat(),
@@ -61,17 +71,18 @@ class WaveAnimation(
                     ),
                     repeatMode = RepeatMode.Restart
                 ),
-                label = ""
+                label = "waveProgress"
             ).value + (width / numOfWaves) * waveIndex
         }
     }
 
-    override fun getWaveOffsetY(): Float {
-        TODO("Not yet implemented")
+    fun getWaveProgress(waveOffset: Float): Float {
+        val waveNum = -waveOffset.toInt()
+        return currentWaveProgresses.getOrElse(waveNum) { waveOffset }
     }
 
-    override fun getWaterHeight(): Float {
-        return waterHeight.value
+    fun getWaterHeight(): Float {
+        return currentWaterHeight.value
     }
 
 }

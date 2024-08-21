@@ -9,34 +9,33 @@ import com.uuranus.compose.nature_effects.Picture
 import kotlin.math.sin
 
 class WavePicture(
-    override val color: Color = Color.Blue,
-    animation: WaveAnimation,
-    offset: Offset,
-    private val waveLevel: Float,
-    private val waterHeight: Float,
-) : Picture(
-    color = color,
-    animation = animation,
-    offset = offset
-) {
+    val color: Color = Color.Blue,
+    val animation: WaveAnimation,
+    private val offset: Offset = Offset.Zero,
+    private val waveAmplitude: Float = 0f,
+    private val numberOfPeaks: Int,
+) : Picture() {
 
     override fun draw(drawScope: DrawScope) {
         val size = drawScope.size
 
-        val interval = (size.width / 3).toInt()
+        val interval = (size.width / (numberOfPeaks * 2 + 1)).toInt()
 
         val offsets = List(interval) { index ->
             val xPosition = index * interval.toFloat()
 
+            val progressX = animation.getWaveProgress(offset.x)
 
-            val relativeX = (xPosition - offset.x) / size.width * 2 * Math.PI
+            val currentWaterHeight = animation.getWaterHeight()
 
-            val yValue = sin(relativeX + Math.PI / 2) * waveLevel
+            val relativeX = (xPosition - progressX) / size.width * 2 * Math.PI
+
+            val yValue = sin(relativeX + Math.PI / 2) * waveAmplitude
 
             mutableStateOf(
                 Offset(
                     interval * index.toFloat(),
-                    size.height - waterHeight + yValue.toFloat()
+                    size.height - currentWaterHeight + yValue.toFloat()
                 )
             )
         }
