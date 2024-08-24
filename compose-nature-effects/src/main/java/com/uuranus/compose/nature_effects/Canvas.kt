@@ -11,20 +11,22 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
-@Composable
-fun MyCanvas(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.White,
-    shape: Shape = RectangleShape,
-    content: (DrawScope) -> Unit,
-) {
-
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .clip(shape)
+    @Composable
+    fun MyCanvas(
+        modifier: Modifier = Modifier,
+        backgroundColor: Color = Color.White,
+        shape: Shape = RectangleShape,
+        content: (DrawScope) -> Unit,
     ) {
-        content(this)
+
+        Canvas(
+            modifier = modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .clip(shape)
+        ) {
+            content(this)
+        }
     }
-}
+
+

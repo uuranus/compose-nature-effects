@@ -2,7 +2,7 @@ package com.uuranus.compose.nature_effects
 
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
-abstract class Picture {
+interface Picture {
 
-    open fun draw(drawScope: DrawScope) {}
+    fun draw(drawScope: DrawScope)
 }

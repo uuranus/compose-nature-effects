@@ -1,4 +1,4 @@
-package com.uuranus.compose.nature_effects.water
+package com.uuranus.compose.nature_effects.water.wave
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 class WaveAnimation(
     private val waveProgressDuration: Int,
 ) {
-
     private var previousWaterHeight by mutableStateOf(0.dp)
 
     private var currentWaterHeight by mutableStateOf(previousWaterHeight)
