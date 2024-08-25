@@ -44,7 +44,7 @@ class Ripple(
 
     private fun drawRing(drawScope: DrawScope) {
 
-        val radius = radius * animation.getCurrentScale()
+        val radius = radius * animation.getCurrentRingRadiusScale()
         val ringWidth = radius / 8f
 
         val path = Path().apply {
@@ -81,14 +81,14 @@ class Ripple(
                 colors = listOf(color, Color.Transparent),
                 center = centerOffset
             ),
-            alpha = animation.getCurrentAlpha()
+            alpha = animation.getCurrentRingAlpha()
         )
     }
 
     private fun drawRhombus(drawScope: DrawScope, angle: Double) {
-        val radius = radius * animation.getCurrentScale()
+        val radius = radius * animation.getCurrentRhombusRadiusScale()
 
-        val size = Size(radius / 3f, radius / 3f) * animation.getRhombusCurrentScale()
+        val size = Size(radius / 3f, radius / 3f) * animation.getCurrentRhombusScale()
 
         val path = Path()
         val centerX = centerOffset.x + radius * cos(angle).toFloat()

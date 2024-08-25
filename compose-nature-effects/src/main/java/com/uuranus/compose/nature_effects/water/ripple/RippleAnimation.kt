@@ -10,25 +10,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 
 class RippleAnimation(
     private val durationMillis: Int,
 ) {
 
-    private var scale by mutableFloatStateOf(0f)
+    private var ringRadiusScale by mutableFloatStateOf(0f)
+    private var rhombusRadiusScale by mutableFloatStateOf(0f)
     private var rhombusScale by mutableFloatStateOf(0f)
 
-    private var alpha by mutableFloatStateOf(1f)
+    private var ringAlpha by mutableFloatStateOf(1f)
 
     @Composable
     fun Start(trigger: Boolean) {
+        UpdateRhombusRadius(trigger)
         UpdateRhombusScale(trigger)
-        UpdateScale(trigger)
-        UpdateAlpha(trigger)
+        UpdateRingRadiusScale(trigger)
+        UpdateRingAlpha(trigger)
     }
 
     @Composable
-    private fun UpdateScale(trigger: Boolean) {
+    private fun UpdateRingRadiusScale(trigger: Boolean) {
         LaunchedEffect(trigger) {
             animate(
                 initialValue = 0f,
@@ -38,13 +41,13 @@ class RippleAnimation(
                     easing = LinearEasing
                 ),
             ) { value, _ ->
-                scale = value
+                ringRadiusScale = value
             }
         }
     }
 
     @Composable
-    private fun UpdateAlpha(trigger: Boolean) {
+    private fun UpdateRingAlpha(trigger: Boolean) {
         LaunchedEffect(trigger) {
             animate(
                 initialValue = 1f,
@@ -54,7 +57,23 @@ class RippleAnimation(
                     easing = LinearEasing
                 ),
             ) { value, _ ->
-                alpha = value
+                ringAlpha = value
+            }
+        }
+    }
+
+    @Composable
+    private fun UpdateRhombusRadius(trigger: Boolean) {
+        LaunchedEffect(trigger) {
+            animate(
+                initialValue = 0.2f,
+                targetValue = 1.3f,
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    easing = LinearEasing
+                ),
+            ) { value, _ ->
+                rhombusRadiusScale = value
             }
         }
     }
@@ -70,7 +89,7 @@ class RippleAnimation(
             animatable.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = durationMillis * 6 / 10,
+                    durationMillis = durationMillis * 1 / 2,
                     easing = LinearEasing
                 ),
             ) {
@@ -80,7 +99,7 @@ class RippleAnimation(
             animatable.animateTo(
                 targetValue = 0f,
                 animationSpec = tween(
-                    durationMillis = durationMillis * 4 / 10,
+                    durationMillis = durationMillis * 1 / 2,
                     easing = LinearEasing
                 ),
             ) {
@@ -89,7 +108,8 @@ class RippleAnimation(
         }
     }
 
-    fun getCurrentScale(): Float = scale
-    fun getCurrentAlpha(): Float = alpha
-    fun getRhombusCurrentScale(): Float = rhombusScale
+    fun getCurrentRingRadiusScale(): Float = ringRadiusScale
+    fun getCurrentRingAlpha(): Float = ringAlpha
+    fun getCurrentRhombusScale(): Float = rhombusScale
+    fun getCurrentRhombusRadiusScale(): Float = rhombusRadiusScale
 }
