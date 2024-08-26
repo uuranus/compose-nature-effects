@@ -3,10 +3,13 @@ package com.uuranus.compose.nature_effects
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.uuranus.compose.nature_effects.hang.PendulumEffect
 import com.uuranus.compose.nature_effects.ui.theme.ComposenatureeffectsTheme
 import com.uuranus.compose.nature_effects.water.ripple.RippleEffect
 import com.uuranus.compose.nature_effects.water.wave.WaveEffect
@@ -92,7 +97,14 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        RippleEffect(modifier = Modifier.fillMaxSize())
+//                        RippleEffect(modifier = Modifier.fillMaxSize())
+                        PendulumEffect(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(100.dp)
+                                .aspectRatio(1f),
+                            startFromInitialAngle = true
+                        )
 //                        WaveEffect(
 //                            modifier = Modifier
 //                                .width(500.dp)

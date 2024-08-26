@@ -7,73 +7,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class PendulumAnimation(
-    private val initialAngle: Float = 20f,
+    initialAngleDegree: Float = 90f,
     private val dampingFactor: Float = 0.6f,
-    private val startFromInitialAngle: Boolean,
+    private var startFromInitialAngle: Boolean,
 ) {
+    private var startAngleDegree by mutableFloatStateOf(initialAngleDegree)
+    private var currentAngleDegree by mutableFloatStateOf(startAngleDegree)
 
-    private var rotation by mutableFloatStateOf(if (startFromInitialAngle) initialAngle else 0f)
-
-    private var angle by mutableFloatStateOf(initialAngle)
+    private var rotationDegree by mutableFloatStateOf(currentAngleDegree)
 
     @Composable
     fun Start(trigger: Boolean) {
         StartHanging(isHanging = trigger)
     }
 
+    fun updateInitialAngleDegree(updateAngleDegree: Float) {
+        startFromInitialAngle = true
+        this.startAngleDegree = updateAngleDegree
+
+        this.currentAngleDegree = updateAngleDegree
+        this.rotationDegree = updateAngleDegree
+    }
+
     @Composable
     fun StartHanging(isHanging: Boolean) {
         LaunchedEffect(isHanging) {
             if (isHanging) {
-                launch {
-                    while (angle >= 1f) {
-                        if (startFromInitialAngle && angle == initialAngle) {
-                            animate(
-                                initialValue = angle,
-                                targetValue = 0f,
-                                animationSpec = keyframes {
-                                    durationMillis = 300
-                                    angle at 75 with LinearEasing
-                                    0f at 150 with LinearEasing
-                                    -angle at 225 with LinearEasing
-                                    0f at 300 with LinearEasing
-                                },
-                            ) { value, _ ->
-                                rotation = value
-                            }
-                        } else {
-                            animate(
-                                initialValue = 0f,
-                                targetValue = 0f,
-                                animationSpec = keyframes {
-                                    durationMillis = 300
-                                    0f at 0 with LinearEasing
-                                    angle at 75 with LinearEasing
-                                    0f at 150 with LinearEasing
-                                    -angle at 225 with LinearEasing
-                                    0f at 300 with LinearEasing
-                                },
-                            ) { value, _ ->
-                                rotation = value
-                            }
-
+                    while (abs(currentAngleDegree) >= 1f) {
+                        animate(
+                            initialValue = 0f,
+                            targetValue = 0f,
+                            animationSpec = keyframes {
+                                durationMillis = 300
+                                0f at 0 with LinearEasing
+                                currentAngleDegree at 75 with LinearEasing
+                                0f at 150 with LinearEasing
+                                -currentAngleDegree at 225 with LinearEasing
+                                0f at 300 with LinearEasing
+                            },
+                        ) { value, _ ->
+                            rotationDegree = value
                         }
-
-                        angle *= dampingFactor
+                        currentAngleDegree *= dampingFactor
                     }
-                    angle = initialAngle
-                }
+
             } else {
-                angle = initialAngle
+                currentAngleDegree = startAngleDegree
             }
         }
-
     }
 
-    fun getCurrentRotation() = rotation
+    fun getCurrentRotationDegree() = rotationDegree
+
 }

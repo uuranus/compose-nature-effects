@@ -31,22 +31,5 @@ fun MyCanvas(
     }
 }
 
-@Composable
-fun MyBox(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.White,
-    shape: Shape = RectangleShape,
-    composableContent: @Composable (BoxScope) -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .clip(shape)
-    ) {
-        composableContent(this)
-    }
-}
-
 
 

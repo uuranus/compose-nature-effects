@@ -15,7 +15,6 @@ import kotlinx.coroutines.delay
 class RippleAnimation(
     private val durationMillis: Int,
 ) {
-
     private var ringRadiusScale by mutableFloatStateOf(0f)
     private var rhombusRadiusScale by mutableFloatStateOf(0f)
     private var rhombusScale by mutableFloatStateOf(0f)

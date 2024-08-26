@@ -21,7 +21,7 @@ class Ripple(
     private val radius: Float,
     private val color: Color,
     private val accessoryColor: Color,
-) : Picture {
+) : Picture() {
     private lateinit var animation: RippleAnimation
 
     private var centerOffset by mutableStateOf(Offset.Unspecified)
