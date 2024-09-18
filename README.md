@@ -20,4 +20,4 @@ If you want to see the animation, go [here](https://github.com/uuranus/compose-n
 |<img src = "https://github.com/user-attachments/assets/b121c29a-d3e0-40cb-9f0d-7d086987b41c" width = "250">|
 
 
-If you want to see the animation, go [here](https://github.com/uuranus/compose-nature-effects/blob/main/docs/Bell.md)|
+If you want to see the animation, go [here](https://github.com/uuranus/compose-nature-effects/blob/main/docs/Bell.md)
