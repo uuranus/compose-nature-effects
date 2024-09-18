@@ -1,5 +1,4 @@
-# compose-nature-effects
-A collection of Jetpack Compose components inspired by nature.
+![thumbnail](https://github.com/user-attachments/assets/a4c4600a-4f9f-4f24-ab0a-d2f2241466c0)
 
 # Water
 | Wave | Floating Up| Ripple| 
