@@ -1,4 +1,4 @@
-![thumbnail](https://github.com/user-attachments/assets/a4c4600a-4f9f-4f24-ab0a-d2f2241466c0)
+![thumbnail](https://github.com/user-attachments/assets/5663ba34-bba8-4525-8cdb-69d40e9705aa)
 
 # Water
 | Wave | Floating Up| Ripple| 
