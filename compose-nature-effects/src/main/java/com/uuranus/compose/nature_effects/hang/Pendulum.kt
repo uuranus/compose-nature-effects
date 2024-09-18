@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -39,10 +40,11 @@ class Pendulum(
             modifier = Modifier
                 .size(iconSize)
         ) {
+
             Icon(
                 imageVector = Icons.Outlined.Notifications,
                 contentDescription = null,
-                modifier = androidx.compose.ui.Modifier
+                modifier = Modifier
                     .size(iconSize)
                     .graphicsLayer {
 
@@ -58,6 +60,7 @@ class Pendulum(
 
                     }
             )
+
         }
 
     }

@@ -22,7 +22,6 @@ fun PendulumEffect(
     modifier: Modifier = Modifier,
     initialAngle: Float = 90f,
     dampingFactor: Float = 0.6f,
-    startFromInitialAngle: Boolean,
 ) {
     var isHanging by remember {
         mutableStateOf(true)
@@ -40,7 +39,6 @@ fun PendulumEffect(
         PendulumAnimation(
             initialAngleDegree = initialAngle,
             dampingFactor = dampingFactor,
-            startFromInitialAngle = startFromInitialAngle
         )
     }
 
@@ -61,6 +59,7 @@ fun PendulumEffect(
             .onGloballyPositioned {
                 size = it.size
             }
+
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
@@ -74,42 +73,49 @@ fun PendulumEffect(
                     },
                     onDrag = { change, _ ->
                         endPosition = change.position
+                        val angle = calculateAngleDegree(startPosition, endPosition, size)
+
+                        animation.updateInitialAngleDegree(angle)
                     }
                 )
             },
+
         contentAlignment = Alignment.Center,
     ) {
-        val angle = calculateAngleDegree(startPosition, endPosition, size)
-        animation.updateInitialAngleDegree(angle)
 
         pendulum.Draw(this)
     }
+
 }
 
-private fun calculateAngleDegree(startPosition: Offset, endPosition: Offset, size: IntSize): Float {
-    val centerX = size.width / 2f
-    val centerY = size.height / 2f
+    private fun calculateAngleDegree(
+        startPosition: Offset,
+        endPosition: Offset,
+        size: IntSize,
+    ): Float {
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
 
-    val startDelta = atan2(
-        startPosition.y - centerY,
-        startPosition.x - centerX
-    )
-    val endDelta = atan2(
-        endPosition.y - centerY,
-        endPosition.x - centerX
-    )
+        val startDelta = atan2(
+            startPosition.y - centerY,
+            startPosition.x - centerX
+        )
+        val endDelta = atan2(
+            endPosition.y - centerY,
+            endPosition.x - centerX
+        )
 
-    var angleInRadians = endDelta - startDelta
+        var angleInRadians = endDelta - startDelta
 
-    if (angleInRadians > Math.PI.toFloat()) {
-        angleInRadians -= 2 * Math.PI.toFloat()
-    } else if (angleInRadians < -Math.PI.toFloat()) {
-        angleInRadians += 2 * Math.PI.toFloat()
+        if (angleInRadians > Math.PI.toFloat()) {
+            angleInRadians -= 2 * Math.PI.toFloat()
+        } else if (angleInRadians < -Math.PI.toFloat()) {
+            angleInRadians += 2 * Math.PI.toFloat()
+        }
+
+        var angleInDegrees = angleInRadians * (180 / Math.PI).toFloat()
+
+        angleInDegrees = angleInDegrees.coerceIn(-90f, 90f)
+
+        return angleInDegrees
     }
-
-    var angleInDegrees = angleInRadians * (180 / Math.PI).toFloat()
-
-    angleInDegrees = angleInDegrees.coerceIn(-90f, 90f)
-
-    return angleInDegrees
-}

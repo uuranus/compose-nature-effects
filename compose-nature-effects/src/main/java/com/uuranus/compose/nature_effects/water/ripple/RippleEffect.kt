@@ -16,7 +16,7 @@ import com.uuranus.compose.nature_effects.MyCanvas
 @Composable
 fun RippleEffect(
     modifier: Modifier = Modifier,
-    radius: Float = 100f,
+    radius: Float = 200f,
 ) {
     var touchPos by remember { mutableStateOf(Offset.Zero) }
     var trigger by remember { mutableStateOf(false) }
@@ -48,7 +48,7 @@ fun RippleEffect(
                     ripple.setAngle()
                 }
             },
-        backgroundColor = Color.LightGray
+        backgroundColor = Color.Black
     ) {
         ripple.setCenter(touchPos)
         ripple.draw(it)

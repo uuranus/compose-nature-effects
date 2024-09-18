@@ -11,10 +11,10 @@ import androidx.compose.runtime.setValue
 import kotlin.math.abs
 
 class PendulumAnimation(
-    initialAngleDegree: Float = 90f,
+    val initialAngleDegree: Float = 20f,
     private val dampingFactor: Float = 0.6f,
-    private var startFromInitialAngle: Boolean,
 ) {
+
     private var startAngleDegree by mutableFloatStateOf(initialAngleDegree)
     private var currentAngleDegree by mutableFloatStateOf(startAngleDegree)
 
@@ -26,7 +26,6 @@ class PendulumAnimation(
     }
 
     fun updateInitialAngleDegree(updateAngleDegree: Float) {
-        startFromInitialAngle = true
         this.startAngleDegree = updateAngleDegree
 
         this.currentAngleDegree = updateAngleDegree
@@ -37,23 +36,23 @@ class PendulumAnimation(
     fun StartHanging(isHanging: Boolean) {
         LaunchedEffect(isHanging) {
             if (isHanging) {
-                    while (abs(currentAngleDegree) >= 1f) {
-                        animate(
-                            initialValue = 0f,
-                            targetValue = 0f,
-                            animationSpec = keyframes {
-                                durationMillis = 300
-                                0f at 0 with LinearEasing
-                                currentAngleDegree at 75 with LinearEasing
-                                0f at 150 with LinearEasing
-                                -currentAngleDegree at 225 with LinearEasing
-                                0f at 300 with LinearEasing
-                            },
-                        ) { value, _ ->
-                            rotationDegree = value
-                        }
-                        currentAngleDegree *= dampingFactor
+                while (abs(currentAngleDegree) >= 1f) {
+                    animate(
+                        initialValue = currentAngleDegree,
+                        targetValue = 0f,
+                        animationSpec = keyframes {
+                            durationMillis = 300
+                            0f at 0 with LinearEasing
+                            currentAngleDegree at 75 with LinearEasing
+                            0f at 150 with LinearEasing
+                            -currentAngleDegree at 225 with LinearEasing
+                            0f at 300 with LinearEasing
+                        },
+                    ) { value, _ ->
+                        rotationDegree = value
                     }
+                    currentAngleDegree *= dampingFactor
+                }
 
             } else {
                 currentAngleDegree = startAngleDegree

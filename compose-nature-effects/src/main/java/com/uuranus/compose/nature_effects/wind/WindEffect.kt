@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -26,9 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.uuranus.compose.nature_effects.RingShape
@@ -130,106 +133,123 @@ data class Light(
     val angle: Float,
 )
 
-@Composable
-fun WindBlownDiagonalEffect(
-    resourceId: Int,
-) {
+    @Composable
+    fun WindBlownDiagonalEffect(
+        resourceId: Int,
+    ) {
 
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
+        val configuration = LocalConfiguration.current
+        val density = LocalDensity.current
 
-    val screenWidthPx = with(density) {
-        configuration.screenWidthDp * this.density
-    }
+        val screenWidthPx = with(density) {
+            configuration.screenWidthDp * this.density
+        }
 
-    val screenHeightPx = with(density) {
-        configuration.screenHeightDp * this.density
-    }
+        val screenHeightPx = with(density) {
+            configuration.screenHeightDp * this.density
+        }
 
-    var things by remember {
-        mutableStateOf(
-            List(10) {
-                val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
-                val y = Random.nextInt(screenHeightPx.toInt() / 2).toFloat()
-
-                val offset = if (Random.nextInt(2) == 1) {
-                    Offset(x, -y)
-                } else {
-                    Offset(screenWidthPx + x, y)
-                }
-
-                val imageSize = Random.nextInt(10, 40).dp
-                Leaf(offset, imageSize, Random.nextFloat() * 360)
-            })
-    }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            things = things.map { thing ->
-                val newX = thing.offset.x - 5f
-                val newY = thing.offset.y + 5f
-
-                val offset = if (newX <= 0 || newY >= screenHeightPx) {
-
+        val things by remember {
+            mutableStateOf(
+                List(10) {
                     val x = Random.nextInt(screenWidthPx.toInt()).toFloat()
                     val y = Random.nextInt(screenHeightPx.toInt() / 2).toFloat()
 
-                    if (Random.nextInt(2) == 1) {
+                    val offset = if (Random.nextInt(2) == 1) {
                         Offset(x, -y)
                     } else {
                         Offset(screenWidthPx + x, y)
                     }
-                } else {
-                    Offset(newX, newY)
+
+                    val imageSize = Random.nextInt(10, 40).dp
+                    Leaf(offset, imageSize, Random.nextFloat() * 360)
                 }
-
-                val rotate = (thing.rotate + 2) % 360
-                thing.copy(offset = offset, rotate = rotate)
-            }
-
-            delay(16L)
-        }
-    }
-
-    val imageVector = ImageBitmap.imageResource(id = resourceId)
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-    ) {
-
-        for (thing in things) {
-
-            val offsetX = with(density) {
-                thing.offset.x.toDp()
-            }
-            val offsetY = with(density) {
-                thing.offset.y.toDp()
-            }
-
-            Image(
-                bitmap = imageVector,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(thing.size)
-                    .offset(
-                        x = offsetX,
-                        y = offsetY
-                    )
-                    .rotate(thing.rotate),
-                colorFilter = ColorFilter.tint(color = Color(0xFFAE8B4E))
             )
         }
 
+        LaunchedEffect(resourceId) {
+            while (true) {
+                things.forEach { thing ->
+                    thing.update(screenSize = Size(screenWidthPx, screenHeightPx))
+                }
+
+                delay(16L)
+            }
+        }
+
+        val imageVector = ImageBitmap.imageResource(id = resourceId)
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+
+            for (thing in things) {
+                thing.Draw(imageVector)
+            }
+
+        }
+    }
+
+    class Leaf(
+        private val offset: Offset,
+        private var size: Dp,
+        private val rotate: Float,
+    ) {
+
+    private var offsetState by mutableStateOf(offset)
+    private var rotateState by mutableFloatStateOf(rotate)
+
+    fun update(screenSize: Size) {
+        val newX = offsetState.x - 5f
+        val newY = offsetState.y + 5f
+
+        val offset = if (newX <= 0 || newY >= screenSize.height) {
+
+            val x = Random.nextInt(screenSize.width.toInt()).toFloat()
+            val y = Random.nextInt(screenSize.height.toInt() / 2).toFloat()
+
+            if (Random.nextInt(2) == 1) {
+                Offset(x, -y)
+            } else {
+                Offset(screenSize.width + x, y)
+            }
+        } else {
+            Offset(newX, newY)
+        }
+
+        val rotate = (rotateState + 2) % 360
+        this.offsetState = offset
+        this.rotateState = rotate
+    }
+
+    @Composable
+    fun Draw(imageVector: ImageBitmap) {
+        val density = LocalDensity.current
+
+        val offsetX = with(density) {
+            offsetState.x.toDp()
+        }
+        val offsetY = with(density) {
+            offsetState.y.toDp()
+        }
+
+        Image(
+            bitmap = imageVector,
+            contentDescription = null,
+            modifier = Modifier
+                .size(size)
+                .offset(
+                    x = offsetX,
+                    y = offsetY
+                )
+                .rotate(rotateState),
+            colorFilter = ColorFilter.tint(color = Color(0xFFAE8B4E))
+        )
+
     }
 }
-
-data class Leaf(
-    val offset: Offset,
-    val size: Dp,
-    val rotate: Float,
-)
 
 
 @Composable
@@ -352,13 +372,13 @@ fun FloatingUpEffect(
 
 }
 
-    class Bubble(
-        val shape: Shape,
-        offset: Offset,
-        val radius: Float,
-        val width: Float,
-        angle: Double,
-    ) {
+class Bubble(
+    val shape: Shape,
+    offset: Offset,
+    val radius: Float,
+    val width: Float,
+    angle: Double,
+) {
 
 
     var offset by mutableStateOf(offset)

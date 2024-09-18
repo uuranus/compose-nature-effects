@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import com.uuranus.compose.nature_effects.hang.PendulumEffect
 import com.uuranus.compose.nature_effects.ui.theme.ComposenatureeffectsTheme
 import com.uuranus.compose.nature_effects.water.ripple.RippleEffect
 import com.uuranus.compose.nature_effects.water.wave.WaveEffect
+import com.uuranus.compose.nature_effects.wind.WindBlownDiagonalEffect
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -97,13 +100,15 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-//                        RippleEffect(modifier = Modifier.fillMaxSize())
+//                        RippleEffect(modifier = Modifier.fillMaxSize(),
+//
+//                            )
                         PendulumEffect(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(100.dp)
                                 .aspectRatio(1f),
-                            startFromInitialAngle = true
+                            initialAngle = 90f,
                         )
 //                        WaveEffect(
 //                            modifier = Modifier
@@ -144,8 +149,10 @@ class MainActivity : ComponentActivity() {
 
 
 //                            FloatingUpEffect()
+//                        Greeting()
                     }
 
+//                    Greeting(name = "Hello", modifier = Modifier.fillMaxSize())
                 }
 
 
@@ -155,18 +162,22 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    @Composable
+    fun Greeting(modifier: Modifier = Modifier) {
+        val name by remember {
+            mutableStateOf("Anrdoid")
+        }
+        Text(
+            text = "Hello $name!",
+            modifier = modifier,
+            textAlign = TextAlign.Center
+        )
+    }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     ComposenatureeffectsTheme {
-        Greeting("Android")
+        Greeting()
     }
 }
