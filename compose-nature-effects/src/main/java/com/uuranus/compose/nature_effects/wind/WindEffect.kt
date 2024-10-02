@@ -114,14 +114,14 @@ fun WindBlownEffect(
                 brush = Brush.radialGradient(
                     colors = listOf(lightColor, Color.Transparent),
                     center = light.offset,
-                    radius = 3.dp.toPx()
+                    radius = 5.dp.toPx()
                 ),
                 center = light.offset,
             )
             drawCircle(
                 color = lightColor,
                 center = light.offset,
-                radius = 2.dp.toPx()
+                radius = 4.dp.toPx()
             )
         }
     }

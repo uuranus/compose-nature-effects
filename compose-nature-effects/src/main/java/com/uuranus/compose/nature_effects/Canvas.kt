@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 @Composable
 fun MyCanvas(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.White,
+    backgroundColor: Color = Color.Transparent,
     shape: Shape = RectangleShape,
     content: (DrawScope) -> Unit,
 ) {

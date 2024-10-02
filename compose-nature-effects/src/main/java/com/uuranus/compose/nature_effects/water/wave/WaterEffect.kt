@@ -22,51 +22,50 @@ val image1Colors = listOf(
     Color.White.copy(alpha = 0.2f)
 )
 
-    @Composable
-    fun WaveEffect(
-        modifier: Modifier = Modifier,
-        waterHeight: Dp,
-        waveAmplitude: Float,
-        numberOfWaves: Int = 3,
-        numberOfPeaks: Int = 1,
-        waveProgressDuration: Int,
-    ) {
+@Composable
+fun WaveEffect(
+    modifier: Modifier = Modifier,
+    waterHeight: Dp,
+    waveAmplitude: Float,
+    numberOfWaves: Int = 3,
+    numberOfPeaks: Int = 1,
+    waveProgressDuration: Int,
+) {
 
-        var width by remember {
-            mutableFloatStateOf(0f)
-        }
+    var width by remember {
+        mutableFloatStateOf(0f)
+    }
 
-        var height by remember {
-            mutableFloatStateOf(0f)
-        }
+    var height by remember {
+        mutableFloatStateOf(0f)
+    }
 
-        val animation = remember {
-            WaveAnimation(
-                waveProgressDuration = waveProgressDuration
-            )
-        }
+    val animation = remember {
+        WaveAnimation(
+            waveProgressDuration = waveProgressDuration
+        )
+    }
 
-        animation.Start(waterHeight = waterHeight, width = width, numOfWaves = numberOfWaves)
+    animation.Start(waterHeight = waterHeight, width = width, numOfWaves = numberOfWaves)
 
-        val waves = List(numberOfWaves) { index ->
-            WavePicture(
-                color = image1Colors[index],
-                animation = animation,
-                waveAmplitude = waveAmplitude,
-                offset = Offset(-index.toFloat(), 0f),
-                numberOfPeaks = numberOfPeaks
-            )
-        }
+    val waves = List(numberOfWaves) { index ->
+        WavePicture(
+            color = image1Colors[index],
+            animation = animation,
+            waveAmplitude = waveAmplitude,
+            offset = Offset(-index.toFloat(), 0f),
+            numberOfPeaks = numberOfPeaks
+        )
+    }
 
-        MyCanvas(
-            modifier = modifier,
-            backgroundColor = Color.White
-        ) { drawScope ->
-            width = drawScope.size.width
-            height = drawScope.size.height
+    MyCanvas(
+        modifier = modifier,
+    ) { drawScope ->
+        width = drawScope.size.width
+        height = drawScope.size.height
 
-            for (wave in waves) {
-                wave.draw(drawScope)
-            }
+        for (wave in waves) {
+            wave.draw(drawScope)
         }
     }
+}
