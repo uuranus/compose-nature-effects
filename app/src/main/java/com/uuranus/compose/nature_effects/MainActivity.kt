@@ -3,6 +3,7 @@ package com.uuranus.compose.nature_effects
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,13 +16,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.uuranus.compose.nature_effects.ui.theme.ComposenatureeffectsTheme
-import com.uuranus.compose.nature_effects.wind.ConfettiEffect
+import com.uuranus.compose.nature_effects.wind.ConfettiBox
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +50,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) {
 
-                        ConfettiEffect(
+                        ConfettiBox(
                             modifier = Modifier.fillMaxSize()
-                        )
+                                .background(Color.Black)
+                        ) {
+
+                        }
                     }
                 }
 
@@ -58,7 +63,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @Composable

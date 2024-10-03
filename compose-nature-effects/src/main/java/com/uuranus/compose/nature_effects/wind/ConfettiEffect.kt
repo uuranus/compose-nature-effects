@@ -13,6 +13,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,13 +21,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -39,132 +45,119 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @Composable
-fun ConfettiEffect(
+fun ConfettiBox(
     modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit,
 ) {
 
-    var touchPoint by remember { mutableStateOf(Offset.Zero) }
+    val numOfConfetti = 80
 
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
 
-    val confetties by remember(size, touchPoint) {
-        mutableStateOf(
-            if (size == IntSize.Zero || touchPoint == Offset.Zero) {
-                emptyList() // Return empty list when size is zero
-            } else {
-                List(80) {
-                    Confetti(
-                        shape = if (Random.nextInt(2) == 0) RoundedCornerShape(0f) else CircleShape,
-                        offset = Animatable(
-                            touchPoint, Offset.VectorConverter
-                        ),
-                        color = randomPastelColor(),
-                        rotation = Animatable(Random.nextFloat() * 360f),
-                        alpha = Animatable(1f)
+    val confettiGroups = remember { mutableStateListOf<ConfettiGroup>() }
+
+    var newStartIndex by remember {
+        mutableIntStateOf(0)
+    }
+
+    fun cleanUpConfetti() {
+        confettiGroups.removeIf { it.disappearedConfetti == it.confetti.size }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(size, confettiGroups.size) {
+        cleanUpConfetti()
+
+        confettiGroups.forEach { group ->
+            if (group.isAnimating) return@forEach
+            group.isAnimating = true
+            group.confetti.forEachIndexed { index, con ->
+                val direction =
+                    if (index < group.confetti.size / 2) 1f else -1f
+
+                val maxPeakHeight = size.height
+                val peakHeight =
+                    maxPeakHeight * 0.2f + Random.nextFloat() * maxPeakHeight
+                val heightScalingFactor = peakHeight / maxPeakHeight
+
+                val horizontalDistance =
+                    heightScalingFactor * Random.nextFloat() * size.width
+
+                coroutineScope.launch {
+
+                    val frameCount = 30
+
+                    val controlPoint = Offset(
+                        (group.touchPoint.x + group.touchPoint.x + direction * horizontalDistance) / 2,
+                        group.touchPoint.y - peakHeight
                     )
-                }
-            }
-        )
+                    val startPoint = group.touchPoint
 
-    }
-
-    var isFallingStart by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(size, touchPoint) {
-        confetties.forEachIndexed { index, confetti ->
-
-            val direction =
-                if (index < confetties.size / 2) 1f else -1f
-
-            val maxPeakHeight = size.height
-            val peakHeight =
-                maxPeakHeight * 0.2f + Random.nextFloat() * maxPeakHeight
-            val heightScalingFactor = peakHeight / maxPeakHeight
-
-            val horizontalDistance =
-                heightScalingFactor * Random.nextFloat() * size.width
-
-            launch {
-
-                val frameCount = 30
-
-                val controlPoint = Offset(
-                    (touchPoint.x + touchPoint.x + direction * horizontalDistance) / 2,
-                    touchPoint.y - peakHeight
-                )
-                val startPoint = touchPoint
-
-                val peakPoint = Offset(
-                    touchPoint.x + direction * horizontalDistance,
-                    touchPoint.y - peakHeight
-                )
-
-                var lastBezierPosition = Offset.Zero
-
-                repeat(frameCount) { i ->
-                    val t = i / frameCount.toFloat()
-                    val easedT = EaseOut.transform(t)
-                    val bezierPosition =
-                        quadraticBezier(easedT, startPoint, controlPoint, peakPoint)
-                    confetti.offset.snapTo(bezierPosition)
-                    lastBezierPosition = bezierPosition
-
-                    if (bezierPosition == peakPoint) return@repeat
-                    delay(16L)
-                }
-
-                isFallingStart = true
-
-                val remainingDistance = size.height - lastBezierPosition.y
-
-                val fallingDuration = (remainingDistance / 10).toInt()
-
-                val endPoint = Offset(
-                    peakPoint.x + direction * horizontalDistance / 2f,
-                    size.height.toFloat()
-                )
-
-                val control2Point = Offset(
-                    (peakPoint.x + endPoint.x) / 2f,
-                    peakPoint.y
-                )
-
-                repeat(fallingDuration) { i ->
-                    val t = i / fallingDuration.toFloat()
-                    val easedT = LinearOutSlowInEasing.transform(t)
-                    val bezierPosition = quadraticBezier(easedT, peakPoint, control2Point, endPoint)
-                    confetti.offset.snapTo(bezierPosition)
-                    delay(16L)
-                }
-            }
-
-            launch {
-                confetti.rotation.animateTo(
-                    targetValue = confetti.rotation.value + 360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(2000, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
+                    val peakPoint = Offset(
+                        group.touchPoint.x + direction * horizontalDistance,
+                        group.touchPoint.y - peakHeight
                     )
-                )
-            }
-        }
-    }
 
-    LaunchedEffect(isFallingStart) {
-        if (isFallingStart) {
-            confetties.forEach { confetti ->
-                launch {
-                    confetti.alpha.animateTo(
-                        targetValue = 0f,
-                        animationSpec = tween(3000, easing = LinearEasing),
+                    var lastBezierPosition = Offset.Zero
+
+                    repeat(frameCount) { i ->
+                        val t = i / frameCount.toFloat()
+                        val easedT = EaseOut.transform(t)
+                        val bezierPosition =
+                            quadraticBezier(easedT, startPoint, controlPoint, peakPoint)
+                        con.offset.snapTo(bezierPosition)
+                        lastBezierPosition = bezierPosition
+
+                        if (bezierPosition == peakPoint) return@repeat
+                        delay(16L)
+                    }
+
+                    coroutineScope.launch {
+                        con.animateAlpha()
+                    }
+
+                    val remainingDistance = size.height - lastBezierPosition.y
+
+                    val fallingDuration = (remainingDistance / 10).toInt()
+
+                    val endPoint = Offset(
+                        peakPoint.x + direction * horizontalDistance / 2f,
+                        size.height.toFloat()
+                    )
+
+                    val control2Point = Offset(
+                        (peakPoint.x + endPoint.x) / 2f,
+                        peakPoint.y
+                    )
+
+                    repeat(fallingDuration) { i ->
+                        val t = i / fallingDuration.toFloat()
+                        val easedT = LinearOutSlowInEasing.transform(t)
+                        val bezierPosition =
+                            quadraticBezier(easedT, peakPoint, control2Point, endPoint)
+                        con.offset.snapTo(bezierPosition)
+                        delay(16L)
+                    }
+
+                    group.disappearedConfetti++
+                }
+
+                coroutineScope.launch {
+                    con.rotation.animateTo(
+                        targetValue = con.rotation.value + 360f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(2000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart
+                        )
                     )
                 }
             }
         }
+
+        newStartIndex = confettiGroups.size
     }
 
     Box(modifier = modifier
@@ -173,15 +166,39 @@ fun ConfettiEffect(
         }
         .pointerInput(Unit) {
             detectTapGestures { tapOffset ->
-                touchPoint = tapOffset
+                val newConfetti = List(numOfConfetti) {
+                    Confetti(
+                        shape = if (Random.nextInt(2) == 0) RoundedCornerShape(0f) else CircleShape,
+                        offset = Animatable(tapOffset, Offset.VectorConverter),
+                        color = randomPastelColor(),
+                        rotation = Animatable(Random.nextFloat() * 360f),
+                        alpha = Animatable(1f)
+                    )
+                }
+                confettiGroups.add(
+                    ConfettiGroup(newConfetti, tapOffset, size, false)
+                )
             }
         }) {
-        confetties.forEach {
-            it.Draw()
+        confettiGroups.forEach { group ->
+            group.confetti.forEach {
+                it.Draw()
+            }
         }
-    }
 
+        content()
+    }
 }
+
+data class ConfettiGroup(
+    val confetti: List<Confetti>,
+    val touchPoint: Offset,
+    val size: IntSize,
+    var isAnimating: Boolean,
+) {
+    var disappearedConfetti = 0
+}
+
 
 data class Confetti(
     val shape: Shape,
@@ -190,6 +207,13 @@ data class Confetti(
     var rotation: Animatable<Float, AnimationVector1D>,
     var alpha: Animatable<Float, AnimationVector1D>,
 ) {
+
+    suspend fun animateAlpha() {
+        alpha.animateTo(
+            targetValue = 0f,
+            animationSpec = tween(3000, easing = LinearEasing),
+        )
+    }
 
     @Composable
     fun Draw() {
@@ -201,7 +225,7 @@ data class Confetti(
                 }
                 .size(
                     width = 10.dp,
-                    height = 20.dp
+                    height = 15.dp
                 )
                 .graphicsLayer {
                     rotationX = rotation.value
@@ -212,6 +236,14 @@ data class Confetti(
                     color = color.copy(alpha = alpha.value),
                     shape = shape
                 ))
+    }
+
+    fun draw(drawScope: DrawScope) {
+        drawScope.drawRect(
+            color = color.copy(alpha = alpha.value),
+            topLeft = offset.value,
+            size = Size(10f, 20f),
+        )
     }
 }
 
@@ -237,18 +269,3 @@ fun quadraticBezier(t: Float, p0: Offset, p1: Offset, p2: Offset): Offset {
     return Offset(x, y)
 }
 
-fun cubicBezier(t: Float, p0: Offset, p1: Offset, p2: Offset, p3: Offset): Offset {
-    val oneMinusT = (1 - t)
-
-    val x = (oneMinusT * oneMinusT * oneMinusT) * p0.x +
-            3 * (oneMinusT * oneMinusT) * t * p1.x +
-            3 * oneMinusT * (t * t) * p2.x +
-            (t * t * t) * p3.x
-
-    val y = (oneMinusT * oneMinusT * oneMinusT) * p0.y +
-            3 * (oneMinusT * oneMinusT) * t * p1.y +
-            3 * oneMinusT * (t * t) * p2.y +
-            (t * t * t) * p3.y
-
-    return Offset(x, y)
-}
