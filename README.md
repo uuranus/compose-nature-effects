@@ -8,13 +8,14 @@
 If you want to see all the animations, go [here](https://github.com/uuranus/compose-nature-effects/blob/main/docs/Water.md)
 
 # Wind
-| Falling | Falling (Diagonal) |
-|:--:|:--:|
-|<img src = "https://github.com/user-attachments/assets/0a95d7e7-fe9d-4770-b152-c25c861dca96" width = "250">|<img src = "https://github.com/user-attachments/assets/de463272-e4e9-4ccc-98c8-8f568c8d79c5" width = "250">|
+| Confetti  | Falling | Falling (Diagonal) |
+|:--:|:--:|:--:|
+|<img src = "https://github.com/user-attachments/assets/f2752082-449b-4072-8477-448656db8d00" width = "250">|<img src = "https://github.com/user-attachments/assets/0a95d7e7-fe9d-4770-b152-c25c861dca96" width = "250">|<img src = "https://github.com/user-attachments/assets/de463272-e4e9-4ccc-98c8-8f568c8d79c5" width = "250">|
 
 If you want to see all the animations, go [here](https://github.com/uuranus/compose-nature-effects/blob/main/docs/Wind.md)
 
 # Pendulum
+
 | Bell |
 |:--:|
 |<img src = "https://github.com/user-attachments/assets/16b46e27-7563-4102-b5a3-bfc475888630" width = "250">|
