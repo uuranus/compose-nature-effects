@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.uuranus.compose.nature_effects.ui.theme.ComposenatureeffectsTheme
+import com.uuranus.compose.nature_effects.weather.DayNight
 import com.uuranus.compose.nature_effects.wind.ConfettiBox
 
 class MainActivity : ComponentActivity() {
@@ -50,10 +54,15 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) {
 
-                        ConfettiBox(
-                            modifier = Modifier.fillMaxSize()
-                                .background(Color.Black)
-                        ) {
+//                        ConfettiBox(
+//                            modifier = Modifier.fillMaxSize()
+//                        ) {
+//
+//                        }
+                        DayNight(
+                            modifier = Modifier.width(200.dp)
+                                .aspectRatio(1f)
+                        ){
 
                         }
                     }

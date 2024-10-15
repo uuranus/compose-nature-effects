@@ -56,10 +56,6 @@ fun ConfettiBox(
 
     val confettiGroups = remember { mutableStateListOf<ConfettiGroup>() }
 
-    var newStartIndex by remember {
-        mutableIntStateOf(0)
-    }
-
     fun cleanUpConfetti() {
         confettiGroups.removeIf { it.disappearedConfetti == it.confetti.size }
     }
@@ -72,6 +68,7 @@ fun ConfettiBox(
         confettiGroups.forEach { group ->
             if (group.isAnimating) return@forEach
             group.isAnimating = true
+
             group.confetti.forEachIndexed { index, con ->
                 val direction =
                     if (index < group.confetti.size / 2) 1f else -1f
@@ -154,8 +151,6 @@ fun ConfettiBox(
                 }
             }
         }
-
-        newStartIndex = confettiGroups.size
     }
 
     Box(modifier = modifier
@@ -166,7 +161,8 @@ fun ConfettiBox(
             detectTapGestures { tapOffset ->
                 val newConfetti = List(numOfConfetti) {
                     Confetti(
-                        shape = if (Random.nextInt(2) == 0) RoundedCornerShape(0f) else CircleShape,
+                        shape = if (Random.nextInt(2) == 0) RoundedCornerShape(0f)
+                        else CircleShape,
                         offset = Animatable(tapOffset, Offset.VectorConverter),
                         color = randomPastelColor(),
                         rotation = Animatable(Random.nextFloat() * 360f),
@@ -186,6 +182,7 @@ fun ConfettiBox(
 
         content()
     }
+
 }
 
 data class ConfettiGroup(
