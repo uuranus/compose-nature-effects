@@ -63,7 +63,6 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.width(200.dp)
                                 .aspectRatio(1f)
                         ){
-
                         }
                     }
                 }
