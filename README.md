@@ -14,6 +14,11 @@ If you want to see all the animations, go [here](https://github.com/uuranus/comp
 
 If you want to see all the animations, go [here](https://github.com/uuranus/compose-nature-effects/blob/main/docs/Wind.md)
 
+# Weather
+| DayNight |
+|:--:|
+|<img src = "https://github.com/user-attachments/assets/c8bdf202-aafe-494a-a5e0-1ec124c0ddce" width = "250">|
+
 # Pendulum
 
 | Bell |
