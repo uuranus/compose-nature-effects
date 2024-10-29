@@ -33,12 +33,9 @@ import kotlin.math.sin
 @Composable
 fun DayNight(
     modifier: Modifier = Modifier,
-    onChanged: (Boolean) -> Unit,
+    isDay: Boolean,
+    onClick: () -> Unit,
 ) {
-
-    var isDay by remember {
-        mutableStateOf(true)
-    }
 
     var size by remember {
         mutableStateOf(Size.Zero)
@@ -49,7 +46,7 @@ fun DayNight(
     val biteCircleSize by animateFloatAsState(
         targetValue = if (isDay) 0f else 1f,
         animationSpec = tween(
-            if(isDay) animationDuration  else animationDuration,
+            if (isDay) animationDuration else animationDuration,
             easing = FastOutSlowInEasing,
         ),
         label = "biteCircleSize"
@@ -58,7 +55,7 @@ fun DayNight(
     val moonCircleSize by animateFloatAsState(
         targetValue = if (isDay) 0.5f else 1f,
         animationSpec = tween(
-            if(isDay) animationDuration  else animationDuration,
+            if (isDay) animationDuration else animationDuration,
             easing = FastOutSlowInEasing
         ),
         label = "circleSize"
@@ -73,15 +70,14 @@ fun DayNight(
         label = "sunlightRotation"
     )
 
-    val color = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val color = if (!isDay) Color.White else Color.Black
 
     Canvas(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures {
-                    isDay = !isDay
-                    onChanged(isDay)
+                    onClick()
                 }
             }
             .onGloballyPositioned {

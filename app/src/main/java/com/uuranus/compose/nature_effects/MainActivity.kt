@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -13,9 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +29,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.uuranus.compose.nature_effects.ui.theme.ComposenatureeffectsTheme
+import com.uuranus.compose.nature_effects.ui.theme.LocalDarkTheme
 import com.uuranus.compose.nature_effects.weather.DayNight
 import com.uuranus.compose.nature_effects.wind.ConfettiBox
 
@@ -40,7 +44,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            ComposenatureeffectsTheme {
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            ComposenatureeffectsTheme(
+                darkTheme = isDarkTheme
+            ) {
 
                 Surface(
                     modifier = Modifier
@@ -60,14 +68,15 @@ class MainActivity : ComponentActivity() {
 //
 //                        }
                         DayNight(
-                            modifier = Modifier.width(200.dp)
-                                .aspectRatio(1f)
-                        ){
+                            modifier = Modifier
+                                .width(100.dp)
+                                .aspectRatio(1f),
+                            isDay = !isDarkTheme
+                        ) {
+                            isDarkTheme = !isDarkTheme
                         }
                     }
                 }
-
-
             }
         }
     }
