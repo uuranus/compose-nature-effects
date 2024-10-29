@@ -1,9 +1,6 @@
 package com.uuranus.compose.nature_effects.weather
 
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -24,14 +21,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.toSize
-import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -46,10 +40,6 @@ fun DayNight(
         mutableStateOf(true)
     }
 
-    var isAnimationDone by remember {
-        mutableStateOf(true)
-    }
-
     var size by remember {
         mutableStateOf(Size.Zero)
     }
@@ -59,30 +49,19 @@ fun DayNight(
     val biteCircleSize by animateFloatAsState(
         targetValue = if (isDay) 0f else 1f,
         animationSpec = tween(
-            animationDuration,
+            if(isDay) animationDuration  else animationDuration,
             easing = FastOutSlowInEasing,
         ),
         label = "biteCircleSize"
-    ) {
-        isAnimationDone = isDay
-    }
+    )
 
     val moonCircleSize by animateFloatAsState(
         targetValue = if (isDay) 0.5f else 1f,
         animationSpec = tween(
-            animationDuration,
+            if(isDay) animationDuration  else animationDuration,
             easing = FastOutSlowInEasing
         ),
         label = "circleSize"
-    )
-
-    val sunlight by animateFloatAsState(
-        targetValue = if (isDay) 1f else 0.5f * 1.4f,
-        animationSpec = tween(
-            animationDuration,
-            easing = FastOutSlowInEasing
-        ),
-        label = "sunlight"
     )
 
     val sunlightRotation by animateFloatAsState(
@@ -142,10 +121,10 @@ fun DayNight(
             rotate(sunlightRotation) {
                 drawPath(
                     path = generateSunlightPath(sunRadius, size.minDimension / 2f),
-                    color = color,  // Sunlight Yellow
+                    color = color,
                     style = Stroke(
                         cap = StrokeCap.Round,
-                        width = size.minDimension / 20f  // Slightly thinner sunlight
+                        width = size.minDimension / 20f
                     )
                 )
             }
